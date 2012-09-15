@@ -27,7 +27,7 @@ h1. SqlFunk to the rescue
 The SqlFunk gem translates SQL functions that do the exact same thing, but have different syntax in each RDBMS that is being used.
 
 So far, these functions are implemented :
-* @count_by(column_name, :group_by => "day"|"month"|"year")@
+* @count_by(column_name, :group_by => "day"|"week"|"month"|"year")@
 * ... more to come
 
 h1. Installation

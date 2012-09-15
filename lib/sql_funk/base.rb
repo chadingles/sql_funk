@@ -33,9 +33,16 @@ module SqlFunk
         when /^mysql/ then "DATE_FORMAT(#{column_name}, \"%Y\")"
         when /^postgresql/ then "DATE_TRUNC('year', #{column_name})"
         end
+      when "week"
+        case ActiveRecord::Base.connection.adapter_name.downcase
+        when /^sqlite/ then "STRFTIME(\"%W\", #{column_name})"
+        when /^mysql/ then "DATE_FORMAT(#{column_name}, \"%U\")"
+        when /^postgresql/ then "DATE_TRUNC('year', #{column_name})"
+        end
       end
 
-      self.select("#{date_func} AS #{options[:group_column]}, COUNT(*) AS count_all").group(options[:group_column]).order("#{options[:group_column]} #{options[:order]}")
+
+      self.select("#{date_func} AS #{options[:group_column]}, COUNT(*) AS counter").group(options[:group_column]).order("#{options[:group_column]} #{options[:order]}")
     end
     # 
     # def method_missing(id, *args, &block)
