@@ -37,7 +37,7 @@ module SqlFunk
         case ActiveRecord::Base.connection.adapter_name.downcase
         when /^sqlite/ then "STRFTIME(\"%W\", #{column_name})"
         when /^mysql/ then "DATE_FORMAT(#{column_name}, \"%U\")"
-        when /^postgresql/ then "DATE_TRUNC('year', #{column_name})"
+        when /^postgresql/ then "DATE_TRUNC('week', #{column_name})"
         end
       end
 
