@@ -13,34 +13,21 @@ module SqlFunk
       options[:order] ||= 'ASC'
       options[:group_by] ||= 'day'
       options[:group_column] ||= options[:group_by]
+      strftime_options = {
+        :day => "%Y-%m-%d",
+        :week => case ActiveRecord::Base.connection.adapter_name.downcase
+          when /^sqlite/ then "%W"
+          when /^mysql/ then "%U"
+          end,
+        :month => "%Y-%m",
+        :year => "%Y"
+      }
 
-      date_func = case options[:group_by]
-      when "day"
-        case ActiveRecord::Base.connection.adapter_name.downcase
-        when /^sqlite/ then "STRFTIME(\"%Y-%m-%d\", #{column_name})"
-        when /^mysql/ then "DATE(#{column_name})"
-        when /^postgresql/ then "DATE_TRUNC('day', #{column_name})"
-        end
-      when "month"
-        case ActiveRecord::Base.connection.adapter_name.downcase
-        when /^sqlite/ then "STRFTIME(\"%Y-%m\", #{column_name})"
-        when /^mysql/ then "DATE_FORMAT(#{column_name}, \"%Y-%m\")"
-        when /^postgresql/ then "DATE_TRUNC('month', #{column_name})"
-        end
-      when "year"
-        case ActiveRecord::Base.connection.adapter_name.downcase
-        when /^sqlite/ then "STRFTIME(\"%Y\", #{column_name})"
-        when /^mysql/ then "DATE_FORMAT(#{column_name}, \"%Y\")"
-        when /^postgresql/ then "DATE_TRUNC('year', #{column_name})"
-        end
-      when "week"
-        case ActiveRecord::Base.connection.adapter_name.downcase
-        when /^sqlite/ then "STRFTIME(\"%W\", #{column_name})"
-        when /^mysql/ then "DATE_FORMAT(#{column_name}, \"%U\")"
-        when /^postgresql/ then "DATE_TRUNC('week', #{column_name})"
-        end
-      end
-
+      date_func = case ActiveRecord::Base.connection.adapter_name.downcase
+        when /^sqlite/ then "STRFTIME(\"#{STRFTIME_OPTIONS[options[:group_by].to_sym]}\", #{column_name})"
+        when /^mysql/ then "DATE_FORMAT(#{column_name}, #{STRFTIME_OPTIONS[options[:group_by].to_sym]})"
+        when /^postgresql/ then "DATE_TRUNC('#{options[:group_by]}', \"#{column_name}\")"
+        end          
 
       self.select("#{date_func} AS #{options[:group_column]}, COUNT(*) AS counter").group(options[:group_column]).order("#{options[:group_column]} #{options[:order]}")
     end
