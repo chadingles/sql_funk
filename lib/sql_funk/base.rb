@@ -24,8 +24,8 @@ module SqlFunk
       }
 
       date_func = case ActiveRecord::Base.connection.adapter_name.downcase
-        when /^sqlite/ then "STRFTIME(\"#{STRFTIME_OPTIONS[options[:group_by].to_sym]}\", #{self.table_name}.#{column_name})"
-        when /^mysql/ then "DATE_FORMAT(#{self.table_name}.#{column_name}, #{STRFTIME_OPTIONS[options[:group_by].to_sym]})"
+        when /^sqlite/ then "STRFTIME(\"#{strftime_options[options[:group_by].to_sym]}\", #{self.table_name}.#{column_name})"
+        when /^mysql/ then "DATE_FORMAT(#{self.table_name}.#{column_name}, #{strftime_options[options[:group_by].to_sym]})"
         when /^postgresql/ then "DATE_TRUNC('#{options[:group_by]}', \"#{self.table_name}\".\"#{column_name}\")"
         end          
 
